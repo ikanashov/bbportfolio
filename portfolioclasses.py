@@ -30,10 +30,10 @@ class PSQLGroup:
 @dataclass
 class PSQLStudent:
     id: uuid.UUID
-    fio: str
+    full_name: str
     kod_fl: str
     login: str
-    e_mail: str
+    email: str
     updated: datetime
 
 

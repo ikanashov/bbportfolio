@@ -8,7 +8,7 @@ from zeep import Client
 from zeep.transports import Transport
 from dotenv import load_dotenv
 
-from portfolioclasses import VuzStudent, PSQLFaculty, PSQLGroup
+from portfolioclasses import VuzStudent, PSQLFaculty, PSQLGroup, PSQLStudent
 
 
 class Vuz1CSoap:
@@ -99,12 +99,21 @@ class ETL1cToPostgres():
             return PSQLGroup(*vuzgroup)
 
     def add_vuz_student(self, student: VuzStudent) -> PSQLStudent:
-        pass
-    
+        now = datetime.now(timezone.utc)
+        id = str(uuid.uuid4())
+        if student.email:
+            email = student.email
+        else:
+            email = '\\N'
+        vuzstudent = (id, student.full_name, student.kod_fl, student.login, email, now)
+        self.vuzstudents[student.login] = vuzstudent
+        return PSQLStudent(*vuzstudent)
+
     def get_users(self):
         for user in self.users:
             self.get_or_add_vuz_faculty(user.faculty)
             self.get_or_add_vuz_group(user.group)
+            self.add_vuz_student(user)
 
 
 if __name__ == "__main__":
@@ -115,6 +124,7 @@ if __name__ == "__main__":
      etl.get_users()
      print(etl.vuzfaculties)
      print(etl.vuzgroups)
+     print(len(etl.vuzstudents))
      
 
 

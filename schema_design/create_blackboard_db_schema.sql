@@ -17,10 +17,10 @@ CREATE TABLE IF NOT EXISTS bb.vuz_groups (
 
 CREATE TABLE IF NOT EXISTS bb.vuz_students (
     id uuid PRIMARY KEY,
-    fio character varying(255) NOT NULL,
+    full_name character varying(255) NOT NULL,
     kod_fl character varying(8) NOT NULL,
     login character varying(100) NOT NULL,
-    e_mail character varying(100) NULL,
+    email character varying(100) NULL,
     updated timestamp with time zone NOT NULL,
     UNIQUE (login)
 )
