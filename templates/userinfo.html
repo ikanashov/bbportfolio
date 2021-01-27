@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+ 
+{% block content %}
+<div class="container">
+    <div class="row"> 
+        <div class="col-12"> 
+            <!-- содержимое контейнера --> 
+            <h1>Информация о {{userinfo.lastname}} {{userinfo.firstname}}</h1>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row"> 
+        <div class="col-2"> 
+        </div>
+        <div class="col-8">
+            <p><b>Фамилия:</b> {{userinfo.lastname}}</p>
+            <p><b>Имя Отчество:</b> {{userinfo.firstname}}</p>
+            <p><b>Логин:</b> {{userinfo.login}}</p>
+            <p><b>EmloyeeID:</b> {{userinfo.id}}</p>
+            <p><b>E-mail:</b> {{userinfo.email}}</p>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row"> 
+        <div class="col-12"> 
+            <!-- содержимое контейнера --> 
+            <h3><a href="{{userinfo.login}}/activity"> Активность {{userinfo.lastname}} {{userinfo.firstname}} в системе</a></h3>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row"> 
+        <div class="col-12"> 
+            <!-- содержимое контейнера --> 
+            <h3><a href="{{userinfo.login}}/courses"> Информация о курсах {{userinfo.lastname}} {{userinfo.firstname}}</a></h3>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row"> 
+        <div class="col-12"> 
+            <!-- содержимое контейнера --> 
+            <h3><a href="/portfolio"> Вернуться назад</a></h3>
+        </div>
+    </div>
+</div>
+{% endblock %}
