@@ -1,3 +1,5 @@
+import csv
+import io
 import os 
 import uuid
 from datetime import datetime, timezone
@@ -8,7 +10,9 @@ from zeep import Client
 from zeep.transports import Transport
 from dotenv import load_dotenv
 
-from portfolioclasses import VuzStudent, PSQLFaculty, PSQLGroup, PSQLStudent
+import psycopg2
+
+from portfolioclasses import VuzStudent, PSQLFaculty, PSQLGroup, PSQLStudent, PSQLFacultyGroup, PSQLGroupStudent
 
 
 class Vuz1CSoap:
@@ -73,10 +77,27 @@ class ETL1cToPostgres():
     vuzgroups: dict = {}
     vuzstudents: dict = {}
     vuzfacultygroups: dict = {}
-    vuzgroupstuednts: dict = {}
-
-    def __init__(self, users: list):
+    vuzgroupstudents: dict = {}
+    
+    def __init__(self, users: list, envfile='.env'):
         self.users = [VuzStudent(user[0], user[1], user[2], user[3], user[4], user[5]) for user in users]
+
+        dotenv_path = os.path.join(os.path.dirname(__file__), envfile)
+        if os.path.exists(dotenv_path):
+            load_dotenv(dotenv_path)
+
+        self.conn = psycopg2.connect(
+            dbname=os.getenv('POSTGRES_DB', 'postgres'),
+            user=os.getenv('POSTGRES_USER', 'postgres'),
+            password=os.getenv('POSTGRES_PASSWORD', ''),
+            host=os.getenv('POSTGRES_HOST', 'localhost'),
+            port=int(os.getenv('POSTGRES_PORT', '5432')),
+            options='-c search_path=' + os.getenv('POSTGRES_SCHEMA', 'public'),
+        )
+
+    def copy_to_table_from_csv(self, tablename: str, csvtable: io.StringIO):
+        with self.conn as conn, conn.cursor() as cur:
+            cur.copy_from(csvtable, tablename, sep='|')
     
     def get_or_add_vuz_faculty(self, faculty: str) -> PSQLFaculty:
         try:
@@ -98,47 +119,85 @@ class ETL1cToPostgres():
         finally:
             return PSQLGroup(*vuzgroup)
 
-    def add_vuz_student(self, student: VuzStudent) -> PSQLStudent:
-        now = datetime.now(timezone.utc)
-        id = str(uuid.uuid4())
-        if student.email:
-            email = student.email
-        else:
-            email = '\\N'
-        vuzstudent = (id, student.full_name, student.kod_fl, student.login, email, now)
-        self.vuzstudents[student.login] = vuzstudent
-        return PSQLStudent(*vuzstudent)
+    def get_or_add_vuz_student(self, student: VuzStudent) -> PSQLStudent:
+        try:
+            vuzstudent = self.vuzstudents[student.login]
+        except KeyError:
+            now = datetime.now(timezone.utc)
+            id = str(uuid.uuid4())
+            if student.email:
+                email = student.email
+            else:
+                email = '\\N'
+            vuzstudent = (id, student.full_name, student.kod_fl, student.login, email, now)
+            self.vuzstudents[student.login] = vuzstudent
+        finally:
+            return PSQLStudent(*vuzstudent)
+    
+    def get_or_add_faculty_group(self, faculty_id: str, group_id: str) -> PSQLFacultyGroup:
+        try:
+            vuzfacultygroup = self.vuzfacultygroups[faculty_id+group_id]
+        except KeyError:
+            now = datetime.now(timezone.utc)
+            id = str(uuid.uuid4())
+            vuzfacultygroup = (id, faculty_id, group_id, now)
+            self.vuzfacultygroups[faculty_id+group_id] = vuzfacultygroup
+        finally:
+            return PSQLFacultyGroup(*vuzfacultygroup)
+    
+    def get_or_add_student_group(self, group_id: str, student_id: str) -> PSQLGroupStudent:
+        try:
+            vuzgroupstudent = self.vuzgroupstudents[group_id+student_id]
+        except KeyError:
+            now = datetime.now(timezone.utc)
+            id = str(uuid.uuid4())
+            vuzgroupstudent = (id, group_id, student_id, now)
+            self.vuzgroupstudents[group_id+student_id] = vuzgroupstudent
+        finally:
+            return PSQLGroupStudent(*vuzgroupstudent)
 
     def get_users(self):
         for user in self.users:
-            self.get_or_add_vuz_faculty(user.faculty)
-            self.get_or_add_vuz_group(user.group)
-            self.add_vuz_student(user)
+            if user.login:
+                faculty = self.get_or_add_vuz_faculty(user.faculty)
+                group = self.get_or_add_vuz_group(user.group)
+                student = self.get_or_add_vuz_student(user)
+                faculty_group = self.get_or_add_faculty_group(faculty.id, group.id)
+                student_group = self.get_or_add_student_group(group.id, student.id)
+            else:
+                print('empty_login', user.faculty, user.group, user.full_name, user.kod_fl, user.email)
 
+    def generate_csv(self, tabledict: dict) -> io.StringIO:
+        csvtable = io.StringIO()
+        tablewriter = csv.writer(csvtable, delimiter='|',)
+        for key in tabledict:
+            tablewriter.writerow(tabledict[key])
+        csvtable.seek(0)
+        return csvtable
 
 if __name__ == "__main__":
+    pass
      #x = Vuz1C()
      #print(x.get_users())
      #Vuz1CSoap()
-     etl = ETL1cToPostgres(Vuz1C().users)
-     etl.get_users()
-     print(etl.vuzfaculties)
-     print(etl.vuzgroups)
-     print(len(etl.vuzstudents))
+     #
+     #etl = ETL1cToPostgres(Vuz1C().users)
+     #etl.get_users()
+     #vuzfaculties = etl.generate_csv(etl.vuzfaculties)
+     #vuzgroups = etl.generate_csv(etl.vuzgroups)
+     #vuzstudents = etl.generate_csv(etl.vuzstudents)
+     #vuzfacultygroups = etl.generate_csv(etl.vuzfacultygroups)
+     #vuzgroupstudents = etl.generate_csv(etl.vuzgroupstudents)
      
-
-
-#zipusers = list(zip(*users))
-#print (filials)
-#print (groups)
-#course = input ("Введитие ИД курса : ")
-#group = input ("Введите название групп(ы) через пробел : ")
-#try:
-    #f = open ('_bb_zachislil_'+course+'_'+group+'.csv','w')
-    #group = group.split(' ')
-#    for user in users:
-#        if user[1] in group:
-#            print (course+','+user[4]+',S')
-#            f.write(course+','+user[4]+',S'+'\n')
-#finally:
-#    f.close()
+     #etl.copy_to_table_from_csv('vuz_faculties', vuzfaculties)
+     #etl.copy_to_table_from_csv('vuz_groups', vuzgroups)
+     #etl.copy_to_table_from_csv('vuz_students', vuzstudents)
+     #etl.copy_to_table_from_csv('vuz_facult_group', vuzfacultygroups)
+     #etl.copy_to_table_from_csv('vuz_group_student', vuzgroupstudents)
+     
+     #print(len(etl.users))
+     #print(len(etl.vuzfaculties))
+     #print(len(etl.vuzgroups))
+     #print(len(etl.vuzstudents))
+     #print(len(etl.vuzfacultygroups))
+     #print(len(etl.vuzgroupstudents))

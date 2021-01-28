@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS bb.vuz_groups (
     name character varying(255) NOT NULL,
     updated timestamp with time zone NOT NULL,
     UNIQUE (name)
-)
+);
 
 CREATE TABLE IF NOT EXISTS bb.vuz_students (
     id uuid PRIMARY KEY,
@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS bb.vuz_students (
     email character varying(100) NULL,
     updated timestamp with time zone NOT NULL,
     UNIQUE (login)
-)
+);
 
 -- m2m-таблица для связывания групп и факультетов
 CREATE TABLE IF NOT EXISTS bb.vuz_facult_group (
@@ -47,5 +47,5 @@ CREATE TABLE IF NOT EXISTS bb.vuz_group_student (
     created timestamp with time zone,
     FOREIGN KEY (student_id) REFERENCES bb.vuz_students (id) ON DELETE CASCADE,
     FOREIGN KEY (group_id) REFERENCES bb.vuz_groups (id) ON DELETE CASCADE
-)
-CREATE UNIQUE INDEX vuz_student_group_ind ON bb.vuz_group_student (group_id, student_id)
+);
+CREATE UNIQUE INDEX vuz_student_group_ind ON bb.vuz_group_student (group_id, student_id);
