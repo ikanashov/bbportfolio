@@ -2,6 +2,7 @@
 db/production
 1clogins.csv
 bbsql.dsn
+pfl.log
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

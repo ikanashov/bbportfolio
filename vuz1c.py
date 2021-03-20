@@ -54,8 +54,11 @@ class Vuz1C:
             self.users.sort(key=lambda row: row[2])
             self.users.sort(key=lambda row: row[1])
             self.users.sort(key=lambda row: row[0])
+            # А это не испольузется по SOLID надо удалить!
             self.groups = set(list(zip(*self.users))[1])
-            self.filials = set(list(zip(*self.users))[0])
+            # Это просто необходимо исправить list set list не смешно!
+            self.filials = list(set(list(zip(*self.users))[0]))
+            self.filials.sort(key=lambda row: row[0])
         finally:
             f.close()
     
@@ -67,9 +70,38 @@ class Vuz1C:
                 'full_name': row[2],
                 'login': row[4],
             }
-        for row in self.users]
+        for row in self.users
+        ]
         return users
+    
+    def get_faculty(self) -> list:
+        return self.filials
 
+    def get_groups(self, faculty_name: str) -> list:
+        groups = [row[1] for row in self.users if row[0] == faculty_name]
+        # Это мне тоже очень не нравиться надо переделать
+        groups = list(set(groups))
+        groups.sort()
+        groups = [
+            {
+                'faculty': faculty_name,
+                'group': group
+            }
+        for group in groups
+        ]
+        return groups
+
+    def get_users_in_group(self, group_name: str) -> list:
+        users = [
+            {
+                'faculty': row[0],
+                'group': row[1],
+                'full_name': row[2],
+                'login': row[4],
+            }
+        for row in self.users if row[1] == group_name
+        ]
+        return users
 
 class ETL1cToPostgres():
     """Class to load data from csv to postgress base"""

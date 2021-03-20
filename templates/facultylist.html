@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+ 
+{% block content %}
+<div class="container">
+    <div class="row"> 
+        <div class="col-12"> 
+            <!-- содержимое контейнера --> 
+            <h1>Портфолио обучающихся — список факультетов</h1>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <div class="row"> 
+        <div class="col-12"> 
+            <table class="table table-stripped">
+                <thead>
+                  <tr>
+                    <th>Факультет</th>
+                  </tr>
+                </thead>
+                <tbody>
+                    {% for faculty in faculties -%}
+                    <tr>
+                        <td><a href="/portfolio/faculty/{{faculty}}">{{faculty}}</a></td>
+                    </tr>
+                    {% endfor -%}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
