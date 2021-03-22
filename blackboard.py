@@ -26,7 +26,7 @@ class BlackBoard:
         JOIN [BBLEARN_stats].[dbo].[users] u ON aa.user_pk1=u.pk1
         JOIN [BBLEARN_stats].[dbo].[course_main] cm ON cm.pk1=aa.course_pk1
     WHERE user_id= ?
-    ORDER BY timestamp;
+    ORDER BY timestamp DESC;
     """
     sql_query_user_info = """
     SELECT
