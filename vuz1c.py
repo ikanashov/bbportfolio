@@ -4,6 +4,7 @@ import os
 import uuid
 from datetime import datetime, timezone
 
+from Levenshtein import distance
 from requests import Session
 from requests.auth import HTTPBasicAuth  # or HTTPDigestAuth, or OAuth1, etc.
 from zeep import Client
@@ -39,7 +40,7 @@ class Vuz1CSoap:
         except:
             print('Ошибка при подключении к SOAP сервису 1С')
     
-
+# Надо все переписать через pydantic или dataclasses
 class Vuz1C:
     """Class to read data from csv 1C Vuz Dekanat"""
     
@@ -102,6 +103,28 @@ class Vuz1C:
         for row in self.users if row[1] == group_name
         ]
         return users
+    
+    def search_users(self, full_name: str) -> list:
+        search_lastname = full_name.split(' ')[0]
+        users = []
+        for row in self.users:
+            lastname = row[2].split(' ')[0]
+            dist = distance(lastname, search_lastname)
+            users.append([row[0], row[1], row[2], row[4], dist])
+        users.sort(key=lambda row: row[2])
+        users.sort(key=lambda row: row[1])
+        users.sort(key=lambda row: row[0])
+        users.sort(key=lambda row: row[4])
+        users = [
+            {
+                'faculty': row[0],
+                'group': row[1],
+                'full_name': row[2],
+                'login': row[3],
+            }
+        for row in users if row[4] < 4
+        ]
+        return users 
 
 class ETL1cToPostgres():
     """Class to load data from csv to postgress base"""
