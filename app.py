@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect
+from flask import Flask, render_template, flash, redirect, request
 
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
@@ -34,6 +34,7 @@ def portfolio_service() -> str:
         )
 
 @app.route('/portfolio', strict_slashes=False)
+@app.route('/portfolio/faculty', strict_slashes=False)
 def portfolio_groups() -> str:
     form = SearchForm()
     faculties = vuz.get_faculty()
@@ -50,32 +51,41 @@ def porfolio_faculty_groups(faculty_name: str) -> str:
     return render_template(
         'grouplist.html',
         title = 'Группы факультета — ' + faculty_name,
-        groups = groups
+        groups = groups,
+        faculty_name = faculty_name,
+        backbutton = {'link': '/portfolio/', 'text': 'Вернуться назад'}
     )
 
-@app.route('/portfolio/group/<group_name>', methods=['GET'], strict_slashes=False)
-def portfolio_users_in_group(group_name: str) -> str:
+@app.route('/portfolio/faculty/<faculty_name>/group/<group_name>', methods=['GET'], strict_slashes=False)
+def portfolio_users_in_group(faculty_name: str, group_name: str) -> str:
     users = vuz.get_users_in_group(group_name)
     return render_template(
-        'userslist.html', 
+        'usersingroup.html', 
         title = 'Портфолио студентов группы — ' + group_name, 
-        users = users
+        users = users,
+        faculty_name =  faculty_name,
+        group_name = group_name,
+        backbutton = {'link': '/portfolio/faculty/' + faculty_name, 'text': 'Вернуться назад'}
         )
 
-
+@app.route('/portfolio/faculty/<faculty_name>/group/<group_name>/<user_id>', methods=['GET'], strict_slashes=False)
 @app.route('/portfolio/<user_id>', methods=['GET'], strict_slashes=False)
-def portfolio_user_info(user_id: str) -> str:
+def portfolio_user_info(user_id: str, faculty_name: str = None, group_name: str = None) -> str:
     pfl = blackboard.BlackBoard()
+    backurl = '/portfolio/faculty/' + faculty_name + '/group/' + group_name if (faculty_name and group_name) else '/portfolio/'
     userinfo = pfl.get_user_info(user_id)
     return render_template(
         'userinfo.html', 
         title = userinfo['login'], 
-        userinfo = userinfo
+        userinfo = userinfo,
+        backbutton = {'link': backurl, 'text': 'Вернуться назад'}
         )
 
+@app.route('/portfolio/faculty/<faculty_name>/group/<group_name>/<user_id>/activity', methods=['GET'], strict_slashes=False)
 @app.route('/portfolio/<user_id>/activity', methods=['GET'], strict_slashes=False)
-def portfolio_user_activity(user_id: str) -> str:
+def portfolio_user_activity(user_id: str, faculty_name: str = None, group_name: str = None) -> str:
     pfl = blackboard.BlackBoard()
+    backurl = '/portfolio/faculty/' + faculty_name + '/group/' + group_name + '/' + user_id if (faculty_name and group_name) else '/portfolio/' + user_id
     userinfo = pfl.get_user_info(user_id)
     useractivity = pfl.get_user_activity(user_id)
     return render_template(
@@ -83,11 +93,14 @@ def portfolio_user_activity(user_id: str) -> str:
         title=userinfo['login'], 
         userinfo = userinfo, 
         useractivity = useractivity,
+        backbutton = {'link': backurl, 'text': 'Вернуться назад'}
         )
 
+@app.route('/portfolio/faculty/<faculty_name>/group/<group_name>/<user_id>/courses', methods=['GET'], strict_slashes=False)
 @app.route('/portfolio/<user_id>/courses', methods=['GET'], strict_slashes=False)
-def portfolio_user_courses(user_id: str) -> str:
+def portfolio_user_courses(user_id: str, faculty_name: str = None, group_name: str = None) -> str:
     pfl = blackboard.BlackBoard()
+    backurl = '/portfolio/faculty/' + faculty_name + '/group/' + group_name + '/' + user_id if (faculty_name and group_name) else '/portfolio/' + user_id
     userinfo = pfl.get_user_info(user_id)
     usercourses = pfl.get_user_courses(user_id)
     return render_template(
@@ -95,11 +108,14 @@ def portfolio_user_courses(user_id: str) -> str:
         title=userinfo['login'], 
         userinfo = userinfo, 
         usercourses = usercourses,
+        backbutton = {'link': backurl, 'text': 'Вернуться назад'}
         )
 
+@app.route('/portfolio/faculty/<faculty_name>/group/<group_name>/<user_id>/courses/<course_user_id>', methods=['GET'], strict_slashes=False)
 @app.route('/portfolio/<user_id>/courses/<course_user_id>', methods=['GET'], strict_slashes=False)
-def portfolio_user_grade_in_course(user_id: str, course_user_id: str) -> str:
+def portfolio_user_grade_in_course(user_id: str, course_user_id: str, faculty_name: str = None, group_name: str = None) -> str:
     pfl = blackboard.BlackBoard()
+    backurl = '/portfolio/faculty/' + faculty_name + '/group/' + group_name + '/' + user_id + '/courses' if (faculty_name and group_name) else '/portfolio/' + user_id + '/courses'
     userinfo = pfl.get_user_info(user_id)
     courseinfo = pfl.get_course_by_course_users_id(course_user_id)
     usergrades = pfl.get_user_grade_on_course(course_user_id)
@@ -108,7 +124,8 @@ def portfolio_user_grade_in_course(user_id: str, course_user_id: str) -> str:
         title=userinfo['login'], 
         userinfo = userinfo,
         courseinfo = courseinfo,
-        usergrades = usergrades, 
+        usergrades = usergrades,
+        backbutton = {'link': backurl, 'text': 'Вернуться назад'}
         )
 
 @app.route('/portfolio/search', methods=['POST'], strict_slashes=False)
@@ -119,7 +136,8 @@ def portfolio_search_users() -> str:
         return render_template(
             'userssearch.html', 
             title = 'Результат поиска студентов по фамилии — ' + form.search_lastname.data, 
-            users = users
+            users = users,
+            backbutton = {'link': '/portfolio/', 'text': 'Вернуться назад'}
             )
     flash('Необходимо ввести фамилию студента (min - 2 символа, max - 20 символов)')
     return redirect('/portfolio')
