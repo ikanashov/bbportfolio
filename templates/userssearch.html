@@ -5,24 +5,27 @@
     <div class="row"> 
         <div class="col-12"> 
             <!-- содержимое контейнера --> 
-            <h1>Портфолио обучающихся — список факультетов</h1>
+            <h1>{{title}}</h1>
         </div>
     </div>
 </div>
-{% include 'searchform.html' %}
 <div class="container">
     <div class="row"> 
         <div class="col-12"> 
-            <table class="table table-stripped">
+            <table class="table">
                 <thead>
                   <tr>
                     <th>Факультет</th>
+                    <th>Группа</th>
+                    <th>ФИО</th>
                   </tr>
                 </thead>
                 <tbody>
-                    {% for faculty in faculties -%}
+                    {% for user in users -%}
                     <tr>
-                        <td><a href="/portfolio/faculty/{{faculty}}">{{faculty}}</a></td>
+                        <td>{{user.faculty}}</td>
+                        <td>{{user.group}}</td>
+                        <td><a href="/portfolio/{{user.login}}">{{user.full_name}}</a></td>
                     </tr>
                     {% endfor -%}
                 </tbody>
