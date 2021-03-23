@@ -23,15 +23,6 @@ vuz = vuz1c.Vuz1C()
 app = Flask('portfolio_service')
 app.config['SECRET_KEY'] = config.FLASK_SECRET_KEY
 
-# Не забыть удалить !
-@app.route('/portfolio/allusers', strict_slashes=False)
-def portfolio_service() -> str:
-    users = vuz.get_users()
-    return render_template(
-        'userslist.html', 
-        title = 'Портфолио студента "Уральский Государственный университет путей сообщения"', 
-        users = users
-        )
 
 @app.route('/portfolio', strict_slashes=False)
 @app.route('/portfolio/faculty', strict_slashes=False)
