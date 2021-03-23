@@ -1,13 +1,29 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, flash, redirect
 
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired, length
+
+from config import config
 import blackboard
 import vuz1c
 
 
+class SearchForm(FlaskForm):
+    search_lastname = StringField(
+        label = 'Поиск по фамилии', 
+        description = 'Введите фамилию',
+        render_kw = {"placeholder": "Введите фамилию"},
+        validators = [DataRequired(), length(min=2, max=20)]
+    )
+    submit = SubmitField(label = 'Найти')
+
 vuz = vuz1c.Vuz1C()
 
 app = Flask('portfolio_service')
+app.config['SECRET_KEY'] = config.FLASK_SECRET_KEY
 
+# Не забыть удалить !
 @app.route('/portfolio/allusers', strict_slashes=False)
 def portfolio_service() -> str:
     users = vuz.get_users()
@@ -19,11 +35,13 @@ def portfolio_service() -> str:
 
 @app.route('/portfolio', strict_slashes=False)
 def portfolio_groups() -> str:
+    form = SearchForm()
     faculties = vuz.get_faculty()
     return render_template(
         'facultylist.html',
         title = 'Портфолио студента "Уральский Государственный университет путей сообщения"',
-        faculties = faculties
+        faculties = faculties,
+        form = form
     )
 
 @app.route('/portfolio/faculty/<faculty_name>', methods=['GET'], strict_slashes=False)
@@ -93,6 +111,18 @@ def portfolio_user_grade_in_course(user_id: str, course_user_id: str) -> str:
         usergrades = usergrades, 
         )
 
+@app.route('/portfolio/search', methods=['POST'], strict_slashes=False)
+def portfolio_search_users() -> str:
+    form = SearchForm()
+    if form.validate_on_submit():
+        users = vuz.search_users(form.search_lastname.data)
+        return render_template(
+            'userssearch.html', 
+            title = 'Результат поиска студентов по фамилии — ' + form.search_lastname.data, 
+            users = users
+            )
+    flash('Необходимо ввести фамилию студента (min - 2 символа, max - 20 символов)')
+    return redirect('/portfolio')
 
 @app.route('/', methods=['GET'])
 def movies_deafault() -> str:

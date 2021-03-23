@@ -3,10 +3,10 @@
         <div class="col-12"> 
             <!-- содержимое контейнера --> 
             <h4>
-                <form action="/portfolio/search/" method="POST">
-                    <label for="search_lastname"><b>Поиск по фамилии</b></label>
-                    <input type="text" placeholder="Введите фамилию" name="search_lastname" required>
-                    <button type="submit">Найти</button>
+                <form method="POST" action="/portfolio/search/">
+                    {{ form.csrf_token }}
+                    {{ form.search_lastname.label }} {{ form.search_lastname(size=20) }}
+                    {{ form.submit() }}
                 </form>
             </h4>
         </div>
