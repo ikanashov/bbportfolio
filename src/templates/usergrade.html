@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+ 
+{% block content %}
+<div class="container">
+    <div class="row"> 
+        <div class="col-12"> 
+            <!-- содержимое контейнера --> 
+            <h1>Успеваемость {{userinfo.lastname}} {{userinfo.firstname}} на курсе {{courseinfo.course_name}}</h1>
+        </div>
+    </div>
+</div>
+<div class="container">
+    {% for grade in usergrades -%}
+    <div class="row"> 
+        <div class="col-2"> 
+        </div>
+        <div class="col-8">
+            <h4><b>Задание:</b> {{grade.grade_title}}</h4>
+            <p><b>Оценка:</b> {{grade.grade}}</p>
+            <p><b>Дата отправки:</b> {{grade.attempt_date}}</p>
+            <p><b>Дата оценки:</b> {{grade.grade_date}}</p>
+            <p><b>Комментарий преподавателя:</b> {{grade.attempt_feedback | safe}}</p>
+            <p><b>Приложенные файлы:</b>
+                {% for file in grade.attempt_files %}
+                <br>
+                <a href="https://bb.usurt.ru/webapps/assignment/download?course_id=_{{courseinfo.course_pk1}}_1&attempt_id=_{{grade.attempt_id}}_1&file_id=_{{file.file_id}}_1&fileName={{file.file_name}}">
+                {{file.file_name}}</a>
+                {% endfor %}
+            </p>
+        </div>
+    </div>
+    {% endfor -%}
+</div>
+{% endblock %}
