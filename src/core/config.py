@@ -1,4 +1,10 @@
+import os
+
 from pydantic import BaseSettings
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 
 class BBPortfolioSettings(BaseSettings):
     REDIS_HOST: str = 'localhost'
@@ -9,7 +15,8 @@ class BBPortfolioSettings(BaseSettings):
     BB_DATABASE_PASSWORD: str = ''
 
     class Config:
-        env_file = '.env'
+        # Файл .env должен находится в корне проекта
+        env_file = BASE_DIR + '/../.env'
 
 
 config = BBPortfolioSettings()

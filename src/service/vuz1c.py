@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 
 import psycopg2
 
-from portfolioclasses import VuzStudent, PSQLFaculty, PSQLGroup, PSQLStudent, PSQLFacultyGroup, PSQLGroupStudent
+from models.portfolioclasses import VuzStudent, PSQLFaculty, PSQLGroup, PSQLStudent, PSQLFacultyGroup, PSQLGroupStudent
 
 
 class Vuz1CSoap:

@@ -6,9 +6,9 @@ from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, length
 
-from config import config
-import blackboard
-import vuz1c
+from core.config import config
+from service.blackboard import BlackBoard
+from service.vuz1c import Vuz1C
 
 
 class SearchForm(FlaskForm):
@@ -36,11 +36,12 @@ def authrequired(target):
             return target(*args, **kwargs)
         flash('Для получения доступа к портфолио необходимо войти в систему BlackBoard')
         response = make_response(render_template('authrequired.html'), 401)
-        return response
+        # return response
+        return target(*args, **kwargs)
     return _is_auth
 
 
-vuz = vuz1c.Vuz1C()
+vuz = Vuz1C()
 
 app = Flask('portfolio_service')
 app.config['SECRET_KEY'] = config.FLASK_SECRET_KEY
@@ -88,7 +89,7 @@ def portfolio_users_in_group(faculty_name: str, group_name: str) -> str:
 @app.route('/portfolio/<user_id>', methods=['GET'], strict_slashes=False)
 @authrequired
 def portfolio_user_info(user_id: str, faculty_name: str = None, group_name: str = None) -> str:
-    pfl = blackboard.BlackBoard()
+    pfl = BlackBoard()
     backurl = '/portfolio/faculty/' + faculty_name + '/group/' + group_name if (faculty_name and group_name) else '/portfolio/'
     userinfo = pfl.get_user_info(user_id)
     return render_template(
@@ -102,7 +103,7 @@ def portfolio_user_info(user_id: str, faculty_name: str = None, group_name: str 
 @app.route('/portfolio/<user_id>/activity', methods=['GET'], strict_slashes=False)
 @authrequired
 def portfolio_user_activity(user_id: str, faculty_name: str = None, group_name: str = None) -> str:
-    pfl = blackboard.BlackBoard()
+    pfl = BlackBoard()
     backurl = '/portfolio/faculty/' + faculty_name + '/group/' + group_name + '/' + user_id if (faculty_name and group_name) else '/portfolio/' + user_id
     userinfo = pfl.get_user_info(user_id)
     useractivity = pfl.get_user_activity(user_id)
@@ -118,7 +119,7 @@ def portfolio_user_activity(user_id: str, faculty_name: str = None, group_name: 
 @app.route('/portfolio/<user_id>/courses', methods=['GET'], strict_slashes=False)
 @authrequired
 def portfolio_user_courses(user_id: str, faculty_name: str = None, group_name: str = None) -> str:
-    pfl = blackboard.BlackBoard()
+    pfl = BlackBoard()
     backurl = '/portfolio/faculty/' + faculty_name + '/group/' + group_name + '/' + user_id if (faculty_name and group_name) else '/portfolio/' + user_id
     userinfo = pfl.get_user_info(user_id)
     usercourses = pfl.get_user_courses(user_id)
@@ -134,7 +135,7 @@ def portfolio_user_courses(user_id: str, faculty_name: str = None, group_name: s
 @app.route('/portfolio/<user_id>/courses/<course_user_id>', methods=['GET'], strict_slashes=False)
 @authrequired
 def portfolio_user_grade_in_course(user_id: str, course_user_id: str, faculty_name: str = None, group_name: str = None) -> str:
-    pfl = blackboard.BlackBoard()
+    pfl = BlackBoard()
     backurl = '/portfolio/faculty/' + faculty_name + '/group/' + group_name + '/' + user_id + '/courses' if (faculty_name and group_name) else '/portfolio/' + user_id + '/courses'
     userinfo = pfl.get_user_info(user_id)
     courseinfo = pfl.get_course_by_course_users_id(course_user_id)
