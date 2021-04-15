@@ -1,7 +1,7 @@
 import datetime
 import pyodbc 
 
-from .config import config
+from config import config
 
 
 class BlackBoard:
