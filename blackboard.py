@@ -1,6 +1,8 @@
 import datetime
 import pyodbc 
 
+from .config import config
+
 
 class BlackBoard:
     """Class to connect to BlackBoard sql server"""
@@ -68,10 +70,10 @@ class BlackBoard:
     """
 
     def __init__(self):
-        dsn = 'BBSQLMSSQLServerDatabase' 
-        database = 'BBLEARN' 
-        username = '***REMOVED***' 
-        password = '***REMOVED***' 
+        dsn = config.BB_DATABASE_DSN
+        database = config.BB_DATABASE
+        username = config.BB_DATABASE_USER
+        password = config.BB_DATABASE_PASSWORD
         cnxn = pyodbc.connect('DSN='+dsn+';DATABASE='+database+';UID='+username+';PWD='+ password)
         self.cursor = cnxn.cursor()
     
@@ -142,8 +144,3 @@ class BlackBoard:
             'attempt_files': self.get_files_by_attempt_id(row[2]),
         } for row in rows]
         return user_grade_in_course
-
-if __name__ == "__main__":
-     x = BlackBoard()
-     print(x.get_course_by_course_users_id('233613'))
-     print(x.get_user_grade_on_course('233613'))
