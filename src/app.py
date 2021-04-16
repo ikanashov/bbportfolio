@@ -36,8 +36,7 @@ def authrequired(target):
             return target(*args, **kwargs)
         flash('Для получения доступа к портфолио необходимо войти в систему BlackBoard')
         response = make_response(render_template('authrequired.html'), 401)
-        # return response
-        return target(*args, **kwargs)
+        return response
     return _is_auth
 
 
