@@ -1,0 +1,4 @@
+# example file with student data 
+# format csv
+# faculty;group;full name;password;login;email
+ФСПО КИЖТ;А-110(К);Кургупин Ламар Нанаевич;20111111;LNKurgupin;kurgupin@nomail.ru

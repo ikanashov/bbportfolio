@@ -1,4 +1,5 @@
 import datetime
+
 import pyodbc 
 
 from core.config import config
@@ -70,11 +71,14 @@ class BlackBoard:
     """
 
     def __init__(self):
-        dsn = config.BB_DATABASE_DSN
+        driver = config.BB_DATABASE_DRIVER
+        server = config.BB_DATABASE_HOST
         database = config.BB_DATABASE
         username = config.BB_DATABASE_USER
         password = config.BB_DATABASE_PASSWORD
-        cnxn = pyodbc.connect('DSN='+dsn+';DATABASE='+database+';UID='+username+';PWD='+ password)
+        cnxn = pyodbc.connect(
+            'DRIVER='+driver+';SERVER='+server+';DATABASE='+database+';UID='+username+';PWD='+password
+            )
         self.cursor = cnxn.cursor()
     
     def get_user_courses(self, user_id: str) -> list:

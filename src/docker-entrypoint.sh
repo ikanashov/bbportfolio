@@ -1,3 +1,3 @@
 #!/bin/sh
 
-python main.py
+gunicorn app:app

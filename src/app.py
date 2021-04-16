@@ -168,7 +168,3 @@ def portfolio_search_users() -> str:
 def movies_deafault() -> str:
     #Страница по умолчанию
     return 'Enjoy the silence'
-
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0',port=8001)

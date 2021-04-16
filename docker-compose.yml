@@ -1,17 +1,20 @@
 version: '3'
 services:
-  postgresBB:
-    image: postgres:13
+  clientportfolio:
     restart: unless-stopped
-    container_name: bbDB
-    environment:
-      - POSTGRES_DB=$POSTGRES_DB
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
-    volumes:
-      - ./db/production:/var/lib/postgresql/data
+    container_name: ${DOCKER_PREFIX}clientportfolio
     ports:
-      - 127.0.0.1:$POSTGRES_PORT:5432
+      - $GUNICORN_PORT:$GUNICORN_PORT
+    environment:
+      - FLASK_SECRET_KEY=$FLASK_SECRET_KEY
+      - BB_DATABASE_HOST=$BB_DATABASE_HOST
+      - BB_DATABASE_USER=$BB_DATABASE_USER
+      - BB_DATABASE_PASSWORD=$BB_DATABASE_PASSWORD
+      - GUNICORN_HOST=clientportfolio
+      - GUNICORN_PORT=$GUNICORN_PORT
+      - GUNICORN_LOGLEVEL=$GUNICORN_LOGLEVEL
+    build: ./src/
+    command: /docker-entrypoint.sh
     networks:
       - blackboard_net
 networks:
@@ -20,4 +23,4 @@ networks:
     ipam:
       driver: default
       config:
-        - subnet: 192.168.30.0/24     
+        - subnet: $DOCKER_NETWORK_ADDRESS

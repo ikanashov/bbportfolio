@@ -46,7 +46,7 @@ class Vuz1C:
     
     def __init__(self):
         try:
-            f = open ("db/1clogins.csv",'r')
+            f = open ('data/1clogins.csv','r')
             self.users = []
             for line in f:
                 splitline = line.rstrip().split(';')
