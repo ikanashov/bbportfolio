@@ -3,6 +3,8 @@ services:
   clientportfolio:
     restart: unless-stopped
     container_name: ${DOCKER_PREFIX}clientportfolio
+    volumes:
+      - ./logs:/logs
     ports:
       - $GUNICORN_PORT:$GUNICORN_PORT
     environment:

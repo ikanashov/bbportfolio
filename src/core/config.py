@@ -18,6 +18,8 @@ class BBPortfolioSettings(BaseSettings):
     GUNICORN_PORT: int = 8000
     GUNICORN_WORKERS: int = multiprocessing.cpu_count() * 2 + 1
     GUNICORN_LOGLEVEL: str = 'INFO'
+    GUNICORN_ACCESSLOG: str = '/logs/portfolio.log'
+    GUNICORN_LOGFORMAT: str = '%(h)s %({x-forwarded-for}i)s %(l)s %(u)s %(t)s "%(r)s" %(s)s %(b)s "%(f)s" "%(a)s"'
 
     class Config:
         # Файл .env должен находится в корне проекта

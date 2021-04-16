@@ -5,3 +5,5 @@ from core.config import config as conf
 bind = conf.GUNICORN_HOST+':'+str(conf.GUNICORN_PORT)
 workers = conf.GUNICORN_WORKERS
 loglevel = conf.GUNICORN_LOGLEVEL
+accesslog = conf.GUNICORN_ACCESSLOG
+access_log_format = conf.GUNICORN_LOGFORMAT
