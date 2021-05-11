@@ -40,7 +40,7 @@
                     {% for usercourse in usercourses -%}
                     <tr>
                        <td>{{usercourse.course_id}}</td>
-                       <td><a href="courses/{{usercourse.course_user_id}}">{{usercourse.course_name}}</a></td>
+                       <td class="text-break"><a href="courses/{{usercourse.course_user_id}}">{{usercourse.course_name}}</a></td>
                        <td>{{usercourse.course_user_id}}</td>
                     </tr>
                     {% endfor -%}

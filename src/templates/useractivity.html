@@ -31,21 +31,21 @@
             <table class="table">
                 <thead>
                   <tr>
-                    <th>ИД</th>
-                    <th>Имя</th>
-                    <th>Вид</th>
-                    <th>Данные</th>
                     <th>Время</th>
+                    <th>Название курса</th>
+                    <th>Вид</th>
+                    <th>ИД</th>
+                    <th>Действия</th>
                   </tr>
                 </thead>
                 <tbody>
                     {% for activity in useractivity -%}
                     <tr>
-                        <td>{{activity.course_id}}</td>
-                        <td>{{activity.course_name}}</td>
-                        <td>{{activity.activity_type}}</td>
-                        <td>{{activity.activity_data}}</td>
                         <td>{{activity.activity_datetime}}</td>
+                        <td class="text-break">{{activity.course_name}}</td>
+                        <td>{{activity.activity_type}}</td>
+                        <td>{{activity.course_id}}</td>
+                        <td class="text-break">{{activity.activity_data}}</td>
                     </tr>
                     {% endfor -%}
                 </tbody>
