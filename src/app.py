@@ -114,6 +114,21 @@ def portfolio_user_activity(user_id: str, faculty_name: str = None, group_name: 
         backbutton = {'link': backurl, 'text': 'Вернуться назад'}
         )
 
+@app.route('/portfolio/<user_id>/realtime', methods=['GET'], strict_slashes=False)
+@authrequired
+def portfolio_realtime_activity(user_id: str, faculty_name: str = None, group_name: str = None) -> str:
+    pfl = BlackBoard()
+    backurl = '/portfolio/faculty/' + faculty_name + '/group/' + group_name + '/' + user_id if (faculty_name and group_name) else '/portfolio/' + user_id
+    userinfo = pfl.get_user_info(user_id)
+    useractivity = pfl.get_realtime_activity(user_id)
+    return render_template(
+        'useractivity.html', 
+        title=userinfo['login'], 
+        userinfo = userinfo, 
+        useractivity = useractivity,
+        backbutton = {'link': backurl, 'text': 'Вернуться назад'}
+        )
+
 @app.route('/portfolio/faculty/<faculty_name>/group/<group_name>/<user_id>/courses', methods=['GET'], strict_slashes=False)
 @app.route('/portfolio/<user_id>/courses', methods=['GET'], strict_slashes=False)
 @authrequired

@@ -31,6 +31,26 @@ class BlackBoard:
     WHERE user_id= ?
     ORDER BY timestamp DESC;
     """
+    sql_query_realtime_user_activity = """
+    SELECT
+        cm.course_id, cm.course_name 
+        ,aa.course_pk1, aa.event_type, aa.user_pk1
+        ,u.user_id, aa.data, aa.timestamp
+        FROM [BBLEARN].[dbo].[activity_accumulator] aa
+        JOIN [BBLEARN].[dbo].[users] u ON aa.user_pk1=u.pk1
+        JOIN [BBLEARN].[dbo].[course_main] cm ON cm.pk1=aa.course_pk1
+    WHERE user_id = ? AND CONVERT(DATE, timestamp) >= CONVERT (DATE, CURRENT_TIMESTAMP)
+    UNION
+    SELECT
+        cm.course_id, cm.course_name 
+        ,aa.course_pk1, aa.event_type, aa.user_pk1
+        ,u.user_id, aa.data, aa.timestamp
+        FROM [BBLEARN].[dbo].[activity_accumulator_queue] aa
+        JOIN [BBLEARN].[dbo].[users] u ON aa.user_pk1=u.pk1
+        JOIN [BBLEARN].[dbo].[course_main] cm ON cm.pk1=aa.course_pk1
+    WHERE user_id = ? AND CONVERT(DATE, timestamp) >= CONVERT (DATE, CURRENT_TIMESTAMP)
+    ORDER BY timestamp DESC    
+    """
     sql_query_user_info = """
     SELECT
         pk1 user_pk, system_role, user_id, student_id, 
@@ -102,6 +122,18 @@ class BlackBoard:
                 'activity_datetime': row[7].strftime('%d.%m.%Y %H:%M:%S'),
             } for row in rows]
         return useractivity
+
+    def get_realtime_activity(self, user_id: str) -> list:
+        self.cursor.execute(BlackBoard.sql_query_realtime_user_activity, (user_id, user_id,))
+        rows = self.cursor.fetchall()
+        realtimeuseractivity: list = [{
+                'course_id': row[0],
+                'course_name': row[1],
+                'activity_type': row[3],
+                'activity_data': row[6],
+                'activity_datetime': row[7].strftime('%d.%m.%Y %H:%M:%S'),
+            } for row in rows]
+        return realtimeuseractivity
 
     def get_user_info(self, user_id: str) -> dict:
         self.cursor.execute(BlackBoard.sql_query_user_info, (user_id,))
